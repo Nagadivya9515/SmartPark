@@ -1,0 +1,210 @@
+<div class="sp-root" *ngIf="!loading(); else loadingTpl">
+  <ng-container *ngIf="data() as d">
+
+    <!-- ── Top Nav ─────────────────────────────────────────────────────── -->
+    <nav class="sp-nav">
+      <div class="sp-nav__brand">
+        <span class="sp-nav__logo">P</span>
+        <span class="sp-nav__name">SmartPark</span>
+      </div>
+      <div class="sp-nav__tabs">
+        <button class="sp-tab sp-tab--active">
+          <span class="sp-tab__icon">⊞</span> Dashboard
+        </button>
+       <button class="sp-tab" 
+            routerLink="/bookings" 
+            routerLinkActive="sp-tab--active">
+      <span class="sp-tab__icon">📅</span> My Bookings
+    </button>
+      </div>
+      <div class="sp-nav__actions">
+        <button class="sp-icon-btn">👤</button>
+        <button class="sp-icon-btn"  title="Logout">→</button>
+      </div>
+    </nav>
+
+    <!-- ── Page Header ────────────────────────────────────────────────── -->
+    <div class="sp-page">
+
+      <div class="sp-header">
+        <div class="sp-header__left">
+          <div class="sp-header__title-row">
+            <span class="sp-header__icon">🏢</span>
+            <h1 class="sp-header__title">{{ d.summary.lotName }}</h1>
+            <div class="sp-rating">
+              <span class="sp-rating__star">★</span>
+              <span class="sp-rating__val">{{ d.summary.rating }}</span>
+            </div>
+          </div>
+          <div class="sp-header__address">
+            <span>📍</span> {{ d.summary.address }}
+          </div>
+        </div>
+        <div class="sp-live">
+          <span class="sp-live__dot"></span> Live Updates
+        </div>
+      </div>
+
+      <!-- ── Summary Cards ────────────────────────────────────────────── -->
+      <div class="sp-summary">
+        <div class="sp-card sp-card--green">
+          <div class="sp-card__label">Available Slots</div>
+          <div class="sp-card__value">{{ d.summary.availableSlots }}</div>
+          <div class="sp-card__icon">✓</div>
+        </div>
+        <div class="sp-card sp-card--blue">
+          <div class="sp-card__label">Total Capacity</div>
+          <div class="sp-card__value">{{ d.summary.totalCapacity }}</div>
+          <div class="sp-card__icon">⊞</div>
+        </div>
+        <div class="sp-card sp-card--indigo">
+          <div class="sp-card__label">Occupancy Rate</div>
+          <div class="sp-card__value">{{ d.summary.occupancyRate }}%</div>
+          <div class="sp-card__circle">
+            <svg viewBox="0 0 36 36">
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#e0e7ff" stroke-width="3"/>
+              <circle cx="18" cy="18" r="15.9" fill="none" stroke="#6366f1" stroke-width="3"
+                [attr.stroke-dasharray]="d.summary.occupancyRate + ', 100'"
+                stroke-linecap="round"
+                transform="rotate(-90 18 18)"/>
+              <text x="18" y="20.5" text-anchor="middle" font-size="7" fill="#6366f1" font-weight="600">
+                {{ d.summary.occupancyRate }}
+              </text>
+            </svg>
+          </div>
+        </div>
+        <div class="sp-card sp-card--purple">
+          <div class="sp-card__label">Parking Floors</div>
+          <div class="sp-card__value">{{ d.summary.parkingFloors }}</div>
+          <div class="sp-card__icon">🏢</div>
+        </div>
+      </div>
+
+      <!-- ── Floor-wise Availability ──────────────────────────────────── -->
+      <div class="sp-section">
+        <div class="sp-section__header">
+          <h2 class="sp-section__title">Floor-wise Availability</h2>
+          <div class="sp-floor-tabs">
+            <button class="sp-floor-tab"
+                    [class.sp-floor-tab--active]="activeFloor() === 'Floor 1'"
+                    (click)="setFloor('Floor 1')">
+              ⊞ Floor 1
+            </button>
+            <button class="sp-floor-tab"
+                    [class.sp-floor-tab--active]="activeFloor() === 'Floor 2'"
+                    (click)="setFloor('Floor 2')">
+              ⊞ Floor 2
+            </button>
+          </div>
+        </div>
+
+        <!-- Vehicle type cards -->
+        <div class="sp-vtype-grid">
+          <div class="sp-vtype-card" *ngFor="let vt of d.vehicleTypeSummary">
+            <div class="sp-vtype-card__header">
+              <span class="sp-vtype-card__icon">{{ vehicleIcon(vt.type) }}</span>
+              <span class="sp-vtype-card__label">{{ vt.type | titlecase }} Parking</span>
+            </div>
+            <div class="sp-vtype-card__count">
+              <span class="sp-vtype-card__avail">{{ vt.available }}</span>
+              <span class="sp-vtype-card__total"> / {{ vt.total }} available</span>
+            </div>
+            <div class="sp-progress">
+              <div class="sp-progress__bar"
+                   [style.width]="progressWidth(vt.available, vt.total)"
+                   [style.background]="progressColor(vt.type)">
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Sections & Slots ─────────────────────────────────────────── -->
+      <div class="sp-section">
+        <h2 class="sp-section__title">Sections &amp; Slots</h2>
+
+        <div class="sp-section-block" *ngFor="let sec of filteredSections()">
+          <div class="sp-section-block__header">
+            <div class="sp-section-block__label">
+              <span class="sp-section-block__badge">{{ sec.sectionName }}</span>
+              <span class="sp-section-block__name">Section {{ sec.sectionName }}</span>
+              <span class="sp-section-block__avail">
+                {{ sec.available }} / {{ sec.total }} Available
+              </span>
+            </div>
+            <div class="sp-vtype-badge sp-vtype-badge--{{ sec.vehicleType | lowercase }}">
+              {{ vehicleIcon(sec.vehicleType) }} {{ sec.vehicleType }}
+            </div>
+          </div>
+
+          <div class="sp-slots">
+            <button
+              *ngFor="let slot of sec.slots"
+              class="sp-slot"
+              [class.sp-slot--occupied]="slot.occupied"
+              [class.sp-slot--available]="!slot.occupied"
+              (click)="selectSlot(slot.id, $event)"
+              [title]="slot.occupied ? 'Occupied' : 'Click to book this slot'"
+            >
+              {{ slot.slotNumber }}
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── Bottom Row: Rates + CTA ──────────────────────────────────── -->
+      <div class="sp-bottom">
+
+        <!-- Parking Rates -->
+        <div class="sp-rates">
+          <h2 class="sp-section__title">Parking Rates</h2>
+          <div class="sp-rate-row" *ngFor="let rate of d.rates">
+            <div class="sp-rate-row__left">
+              <span class="sp-rate-row__icon">{{ vehicleIcon(rate.vehicleType) }}</span>
+              <span class="sp-rate-row__type">{{ rate.vehicleType | titlecase }}</span>
+            </div>
+            <div class="sp-rate-row__right">
+              <span class="sp-rate-row__price">${{ rate.ratePerHour }}</span>
+              <span class="sp-rate-row__unit">per hour</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CTA Card -->
+        <div class="sp-cta">
+          <h3 class="sp-cta__title">Ready to Park?</h3>
+          <p class="sp-cta__sub">
+            Book your slot now and enjoy hassle-free parking at GreenView Mall
+          </p>
+          <ul class="sp-cta__list">
+            <li><span class="sp-cta__check">✓</span> Real-time availability</li>
+            <li><span class="sp-cta__check">✓</span> 24/7 Security &amp; CCTV</li>
+            <li><span class="sp-cta__check">✓</span> Direct mall access</li>
+            <li><span class="sp-cta__check">✓</span> EV Charging available</li>
+          </ul>
+          <button class="sp-cta__btn">Book Parking Now →</button>
+        </div>
+
+      </div>
+
+      <!-- ── Legend ───────────────────────────────────────────────────── -->
+      <div class="sp-legend">
+        <span class="sp-legend__label">Slot Status:</span>
+        <span class="sp-legend__item">
+          <span class="sp-legend__dot sp-legend__dot--avail"></span> Available
+        </span>
+        <span class="sp-legend__item">
+          <span class="sp-legend__dot sp-legend__dot--occ"></span> Occupied
+        </span>
+      </div>
+
+    </div>
+  </ng-container>
+</div>
+
+<ng-template #loadingTpl>
+  <div class="sp-loading">
+    <div class="sp-spinner"></div>
+    <p>Loading dashboard…</p>
+  </div>
+</ng-template>

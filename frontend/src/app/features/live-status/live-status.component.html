@@ -1,0 +1,177 @@
+<app-operator-navbar [active]="'live'"></app-operator-navbar>
+
+<div class="live-page">
+
+  <!-- ── Header ─────────────────────────────────────────────────────────── -->
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Live Parking Status</h1>
+      <p class="page-subtitle">Real-time view of all parking slots</p>
+    </div>
+    <div class="header-actions">
+      <button class="auto-refresh-btn" [class.active]="autoRefresh()" (click)="toggleAutoRefresh()">
+        <span class="ar-dot" [class.on]="autoRefresh()"></span>
+        Auto-refresh {{ autoRefresh() ? 'ON' : 'OFF' }}
+      </button>
+      <button class="refresh-btn" (click)="onRefresh()" [disabled]="isLoading()">
+        <svg width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2"
+          [class.spinning]="isLoading()">
+          <path stroke-linecap="round" stroke-linejoin="round"
+            d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+        </svg>
+        Refresh
+      </button>
+    </div>
+  </div>
+
+  <!-- ── Loading Skeleton ──────────────────────────────────────────────────── -->
+  <ng-container *ngIf="isLoading() && floors().length === 0">
+    <div class="skeleton-stats">
+      <div class="skeleton-card" *ngFor="let i of [1,2,3,4]"></div>
+    </div>
+    <div class="skeleton-grid">
+      <div class="skeleton-slot" *ngFor="let i of [1,2,3,4,5,6,7,8,9,10,11,12]"></div>
+    </div>
+  </ng-container>
+
+  <ng-container *ngIf="!isLoading() || floors().length > 0">
+
+    <!-- ── Stats Cards ─────────────────────────────────────────────────────── -->
+    <div class="stats-row">
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Total Slots</span>
+          <span class="stat-value">{{ stats().totalSlots }}</span>
+        </div>
+        <div class="stat-icon layers">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878m-12 0c.235-.083.487-.128.75-.128h10.5c.263 0 .515.045.75.128m-12 0A2.25 2.25 0 004.5 9v.878m13.5-3A2.25 2.25 0 0119.5 9v.878m0 0a2.246 2.246 0 00-.75-.128H5.25c-.263 0-.515.045-.75.128m15 0A2.25 2.25 0 0121 12v6a2.25 2.25 0 01-2.25 2.25H5.25A2.25 2.25 0 013 18v-6c0-.98.626-1.813 1.5-2.122"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Occupied</span>
+          <span class="stat-value occupied">{{ stats().occupied }}</span>
+        </div>
+        <div class="stat-icon car-red">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Available</span>
+          <span class="stat-value available">{{ stats().available }}</span>
+        </div>
+        <div class="stat-icon car-green">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25M16.5 18.75h-2.25m0-11.177v-.958c0-.568-.422-1.048-.987-1.106a48.554 48.554 0 00-10.026 0 1.106 1.106 0 00-.987 1.106v7.635m12-6.677v6.677m0 4.5v-4.5m0 0h-12"/>
+          </svg>
+        </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-info">
+          <span class="stat-label">Occupancy Rate</span>
+          <span class="stat-value" [style.color]="occupancyColor()">{{ stats().occupancyRate }}%</span>
+        </div>
+        <div class="stat-icon chart">
+          <svg width="22" height="22" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M3 13.125C3 12.504 3.504 12 4.125 12h2.25c.621 0 1.125.504 1.125 1.125v6.75C7.5 20.496 6.996 21 6.375 21h-2.25A1.125 1.125 0 013 19.875v-6.75zM9.75 8.625c0-.621.504-1.125 1.125-1.125h2.25c.621 0 1.125.504 1.125 1.125v11.25c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V8.625zM16.5 4.125c0-.621.504-1.125 1.125-1.125h2.25C20.496 3 21 3.504 21 4.125v15.75c0 .621-.504 1.125-1.125 1.125h-2.25a1.125 1.125 0 01-1.125-1.125V4.125z"/>
+          </svg>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Floor Tabs ─────────────────────────────────────────────────────── -->
+    <div class="floor-tabs">
+      <button
+        *ngFor="let floor of floors(); let i = index"
+        class="floor-tab"
+        [class.active]="selectedFloorIndex() === i"
+        (click)="selectFloor(i)">
+        <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M6 6.878V6a2.25 2.25 0 012.25-2.25h7.5A2.25 2.25 0 0118 6v.878M6 6.878A2.25 2.25 0 004.5 9v12m15-14.122A2.25 2.25 0 0119.5 9v12M4.5 21h15"/>
+        </svg>
+        {{ floor.floorName }}
+        <span class="floor-tab-free">{{ floor.availableSlots }} free</span>
+      </button>
+    </div>
+
+    <!-- ── Floor Detail ──────────────────────────────────────────────────── -->
+    <div class="floor-detail" *ngIf="selectedFloor() as floor">
+      <div class="floor-header">
+        <div>
+          <h2 class="floor-name">{{ floor.floorName }}</h2>
+          <p class="floor-meta">{{ floor.availableSlots }} of {{ floor.totalSlots }} slots available</p>
+        </div>
+        <div class="floor-occupancy-right">
+          <span class="occ-label">Occupancy</span>
+          <span class="occ-value" [style.color]="occupancyBarColor(floor)">{{ floor.occupancyRate }}%</span>
+        </div>
+      </div>
+
+      <!-- Occupancy Progress Bar -->
+      <div class="occ-bar-bg">
+        <div
+          class="occ-bar-fill"
+          [style.width]="occupancyBarWidth(floor)"
+          [style.background]="occupancyBarColor(floor)">
+        </div>
+      </div>
+
+      <!-- Sections -->
+      <div class="sections">
+        <div class="section-card" *ngFor="let section of floor.sections; trackBy: trackBySection">
+          <div class="section-header">
+            <h3 class="section-name">{{ section.sectionName }}</h3>
+            <div class="section-legend">
+              <span class="legend-dot green"></span> Available: {{ section.available }}
+              <span class="legend-dot red"></span> Occupied: {{ section.occupied }}
+            </div>
+          </div>
+
+          <div class="slots-grid">
+            <div
+              class="slot-cell"
+              *ngFor="let slot of section.slots; trackBy: trackBySlot"
+              [class.occupied]="slot.occupied"
+              [class.available]="!slot.occupied"
+              [title]="slot.occupied ? (slot.currentTicketId || 'Occupied') : 'Available'">
+              <span class="slot-vehicle-icon">{{ vehicleIcon(slot.vehicleType) }}</span>
+              <span class="slot-number">{{ slot.slotNumber }}</span>
+              <span class="slot-plate" *ngIf="slot.occupied && slot.currentTicketId">
+                {{ slot.currentTicketId }}
+              </span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Empty state -->
+    <div class="empty-state" *ngIf="floors().length === 0 && !isLoading()">
+      <svg width="48" height="48" fill="none" viewBox="0 0 24 24" stroke="#94a3b8" stroke-width="1.5">
+        <path stroke-linecap="round" stroke-linejoin="round"
+          d="M8.25 18.75a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h6m-9 0H3.375a1.125 1.125 0 01-1.125-1.125V14.25m17.25 4.5a1.5 1.5 0 01-3 0m3 0a1.5 1.5 0 00-3 0m3 0h1.125c.621 0 1.129-.504 1.09-1.124a17.902 17.902 0 00-3.213-9.193 2.056 2.056 0 00-1.58-.86H14.25"/>
+      </svg>
+      <p>No parking data available. Try refreshing.</p>
+      <button class="btn btn-primary" (click)="onRefresh()">Refresh</button>
+    </div>
+
+    <!-- Last refreshed -->
+    <div class="last-refresh" *ngIf="floors().length > 0">
+      Last updated: {{ formatLastRefreshed() }}
+      <span *ngIf="autoRefresh()"> · Auto-refreshes every 30s</span>
+    </div>
+
+  </ng-container>
+</div>

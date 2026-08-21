@@ -1,0 +1,16 @@
+/* Shared with login — same design system */
+@use '../login/login.component.scss';
+
+/* Register-specific overrides */
+.alert-success {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 14px;
+  border-radius: 8px;
+  font-size: 14px;
+  margin-bottom: 20px;
+  background: #f0fdf4;
+  color: #15803d;
+  border: 1px solid #bbf7d0;
+}

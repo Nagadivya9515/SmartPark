@@ -1,0 +1,78 @@
+<div class="auth-page">
+  <div class="auth-card">
+
+    <!-- Logo / heading -->
+    <div class="auth-header">
+      <div class="auth-logo">🅿</div>
+      <h1>Welcome back</h1>
+      <p>Sign in to your parking account</p>
+    </div>
+
+    <!-- Error banner -->
+    <div class="alert alert-error" *ngIf="authService.error()">
+      <span class="alert-icon">⚠</span>
+      {{ authService.error() }}
+    </div>
+
+    <!-- Form -->
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate>
+
+      <!-- Username -->
+      <div class="form-group" [class.has-error]="username.invalid && username.touched">
+        <label for="username">Username</label>
+        <input
+          id="username"
+          type="text"
+          formControlName="username"
+          placeholder="Enter your username"
+          autocomplete="username"
+        />
+        <span class="field-error" *ngIf="username.touched && username.errors?.['required']">
+          Username is required
+        </span>
+        <span class="field-error" *ngIf="username.touched && username.errors?.['minlength']">
+          At least 3 characters
+        </span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group" [class.has-error]="password.invalid && password.touched">
+        <label for="password">Password</label>
+        <div class="input-with-action">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="Enter your password"
+            autocomplete="current-password"
+          />
+          <button type="button" class="toggle-pw" (click)="togglePassword()">
+            {{ showPassword ? '🙈' : '👁' }}
+          </button>
+        </div>
+        <span class="field-error" *ngIf="password.touched && password.errors?.['required']">
+          Password is required
+        </span>
+        <span class="field-error" *ngIf="password.touched && password.errors?.['minlength']">
+          At least 8 characters
+        </span>
+      </div>
+
+      <!-- Submit -->
+      <button
+        type="submit"
+        class="btn btn-primary"
+        [disabled]="authService.isLoading()"
+      >
+        <span class="spinner" *ngIf="authService.isLoading()"></span>
+        {{ authService.isLoading() ? 'Signing in…' : 'Sign in' }}
+      </button>
+
+    </form>
+
+    <div class="auth-footer">
+      Don't have an account? <a routerLink="/register">Create one</a>
+    </div>
+
+  </div>
+</div>

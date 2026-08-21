@@ -1,0 +1,119 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+* { box-sizing: border-box; }
+
+.ol-page {
+  font-family: 'Inter', sans-serif;
+  min-height: 100vh;
+  background: linear-gradient(135deg, #f0fdf4 0%, #ecfdf5 40%, #f0f9ff 100%);
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  padding: 24px;
+  position: relative;
+}
+
+.ol-back {
+  position: absolute; top: 24px; left: 24px;
+  background: none; border: none; font-family: inherit;
+  font-size: 14px; color: #6b7280; cursor: pointer;
+  display: flex; align-items: center; gap: 4px;
+  &:hover { color: #111827; }
+}
+
+.ol-card {
+  background: #fff; border-radius: 20px; padding: 44px 40px;
+  width: 100%; max-width: 440px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.08);
+  display: flex; flex-direction: column; align-items: center;
+}
+
+.ol-logo {
+  width: 60px; height: 60px; background: #059669; border-radius: 16px;
+  color: #fff; font-size: 28px; font-weight: 700;
+  display: flex; align-items: center; justify-content: center;
+  margin-bottom: 18px;
+}
+
+.ol-title {
+  font-size: 22px; font-weight: 800; color: #111827;
+  margin: 0 0 6px; text-align: center;
+}
+.ol-sub {
+  font-size: 14px; color: #6b7280; margin: 0 0 28px; text-align: center;
+}
+
+.ol-error {
+  width: 100%; background: #fef2f2; border: 1px solid #fecaca;
+  color: #b91c1c; padding: 10px 14px; border-radius: 10px;
+  font-size: 13px; margin-bottom: 16px;
+}
+
+.ol-field {
+  width: 100%; margin-bottom: 18px;
+}
+.ol-label {
+  display: block; font-size: 14px; font-weight: 600;
+  color: #111827; margin-bottom: 8px;
+}
+.ol-input {
+  width: 100%; padding: 12px 14px;
+  border: 1.5px solid #e5e7eb; border-radius: 10px;
+  font-family: inherit; font-size: 14px; color: #111827;
+  background: #f9fafb; transition: all 0.15s;
+  &::placeholder { color: #9ca3af; }
+  &:focus { outline: none; border-color: #059669; background: #fff; box-shadow: 0 0 0 3px rgba(5,150,105,0.1); }
+}
+
+.ol-pw-wrap { position: relative; }
+.ol-pw-wrap .ol-input { padding-right: 44px; }
+.ol-eye {
+  position: absolute; right: 12px; top: 50%; transform: translateY(-50%);
+  background: none; border: none; cursor: pointer; color: #9ca3af; padding: 4px;
+  svg { width: 18px; height: 18px; display: block; }
+  &:hover { color: #6b7280; }
+}
+
+.ol-row {
+  width: 100%; display: flex; align-items: center;
+  justify-content: space-between; margin-bottom: 22px;
+}
+.ol-check {
+  display: flex; align-items: center; gap: 8px;
+  font-size: 13px; color: #374151; cursor: pointer;
+  input { display: none; }
+  &__box {
+    width: 16px; height: 16px; border: 1.5px solid #d1d5db;
+    border-radius: 4px; background: #fff; flex-shrink: 0;
+    transition: all 0.12s;
+  }
+  input:checked + &__box {
+    background: #059669; border-color: #059669;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 12 10' fill='none' xmlns='http://www.w3.org/2000/svg'%3E%3Cpath d='M1 5l3.5 3.5L11 1' stroke='white' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E");
+    background-size: 10px; background-position: center; background-repeat: no-repeat;
+  }
+}
+.ol-forgot {
+  background: none; border: none; font-family: inherit;
+  font-size: 13px; color: #059669; cursor: pointer; font-weight: 500;
+  &:hover { text-decoration: underline; }
+}
+
+.ol-submit {
+  width: 100%; padding: 13px; background: #059669; color: #fff;
+  border: none; border-radius: 10px; font-family: inherit;
+  font-size: 15px; font-weight: 700; cursor: pointer;
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  transition: background 0.15s; margin-bottom: 20px;
+  &:hover:not(:disabled) { background: #047857; }
+  &:disabled { opacity: 0.65; cursor: not-allowed; }
+}
+.ol-spinner {
+  width: 16px; height: 16px; border: 2px solid rgba(255,255,255,.3);
+  border-top-color: #fff; border-radius: 50%;
+  animation: spin 0.7s linear infinite;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+
+.ol-help {
+  width: 100%; background: #eff6ff; border-radius: 10px;
+  padding: 14px 16px; font-size: 13px; color: #1e40af; line-height: 1.5;
+  strong { font-weight: 600; }
+}

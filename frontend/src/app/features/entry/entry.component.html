@@ -1,0 +1,171 @@
+<app-operator-navbar [active]="'entry'"></app-operator-navbar>
+
+<div class="op-page">
+
+  <!-- ── Entry Form ─────────────────────────────────────────────────────── -->
+  <div class="op-entry-layout" *ngIf="activeTab() === 'entry'">
+
+    <div class="op-header">
+      <div>
+        <h1 class="op-title">Entry Management</h1>
+        <p class="op-sub">Process vehicle entry and assign parking slots</p>
+      </div>
+      <div class="op-gate-badge">
+        <span class="op-gate-badge__dot"></span> Gate 1 - Active
+      </div>
+    </div>
+
+    <div class="op-entry-grid">
+
+      <!-- Form card -->
+      <div class="op-form-card">
+        <h2 class="op-form-card__title">Vehicle Entry Form</h2>
+
+        <div class="op-alert" *ngIf="error()">⚠ {{ error() }}</div>
+
+        <!-- Vehicle Number -->
+        <div class="op-field">
+          <label class="op-label">Vehicle Number</label>
+          <div class="op-input-row">
+            <div class="op-input-wrap">
+              <span class="op-input-icon">#</span>
+              <input class="op-input" type="text"
+                     [(ngModel)]="vehicleNumber"
+                     placeholder="ABC-123"
+                     (keyup.enter)="generateTicket()">
+            </div>
+            <button class="op-scan-btn">📷 Scan</button>
+          </div>
+        </div>
+
+        <hr class="op-divider">
+
+        <!-- Vehicle Type -->
+        <div class="op-field">
+          <label class="op-label">Select Vehicle Type</label>
+          <div class="op-vtype-grid">
+            <button
+              *ngFor="let v of vehicleOptions"
+              class="op-vtype-btn"
+              [class.op-vtype-btn--active]="selectedType() === v.type"
+              (click)="selectedType.set(v.type)">
+              <span class="op-vtype-icon">
+                <ng-container [ngSwitch]="v.icon">
+                  <svg *ngSwitchCase="'car'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M5 17H3a2 2 0 01-2-2v-4a2 2 0 012-2h1l2-4h12l2 4h1a2 2 0 012 2v4a2 2 0 01-2 2h-2m-8 0h4m-4 0a1 1 0 11-2 0 1 1 0 012 0zm4 0a1 1 0 11-2 0 1 1 0 012 0z"/></svg>
+                  <svg *ngSwitchCase="'bike'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="5" cy="17" r="3"/><circle cx="19" cy="17" r="3"/><path d="M5 17l2-7h6l3 7M9 10l2-5h4l1 5"/></svg>
+                  <svg *ngSwitchCase="'truck'" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="1" y="3" width="15" height="13"/><path d="M16 8h4l3 3v5h-7V8z"/><circle cx="5.5" cy="18.5" r="2.5"/><circle cx="18.5" cy="18.5" r="2.5"/></svg>
+                </ng-container>
+              </span>
+              <span class="op-vtype-label">{{ v.label }}</span>
+              <span class="op-vtype-free">{{ v.freeSlots }} slots free</span>
+            </button>
+          </div>
+        </div>
+
+        <button class="op-generate-btn"
+                [disabled]="loading()"
+                (click)="generateTicket()">
+          <span class="op-spinner" *ngIf="loading()"></span>
+          {{ loading() ? 'Generating…' : 'Generate Entry Ticket' }}
+        </button>
+      </div>
+
+      <!-- Quick Actions + Stats sidebar -->
+      <div class="op-sidebar">
+        <div class="op-sidebar-card">
+          <h3 class="op-sidebar-card__title">Quick Actions</h3>
+          <button class="op-quick-btn">⊞ Scan QR Code</button>
+          <button class="op-quick-btn">📷 Auto-detect Number</button>
+        </div>
+
+        <div class="op-sidebar-card">
+          <h3 class="op-sidebar-card__title">Today's Stats</h3>
+          <div class="op-stat">
+            <div class="op-stat__label">Total Entries</div>
+            <div class="op-stat__val">{{ todayEntries }}</div>
+          </div>
+          <hr class="op-divider">
+          <div class="op-stat">
+            <div class="op-stat__label">Current Occupancy</div>
+            <div class="op-stat__val op-stat__val--green">{{ currentOccupancy }}%</div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- ── Ticket Result ───────────────────────────────────────────────────── -->
+  <div class="op-ticket-layout" *ngIf="activeTab() === 'ticket' && ticket() as t">
+
+    <div class="op-header">
+      <div>
+        <h1 class="op-title">Entry Management</h1>
+        <p class="op-sub">Process vehicle entry and assign parking slots</p>
+      </div>
+      <div class="op-gate-badge">
+        <span class="op-gate-badge__dot"></span> Gate 1 - Active
+      </div>
+    </div>
+
+    <div class="op-ticket-card">
+
+      <!-- Success header -->
+      <div class="op-ticket-success">
+        <div class="op-ticket-check">✓</div>
+        <h2 class="op-ticket-title">Entry Ticket Generated</h2>
+        <p class="op-ticket-sub">Vehicle entry processed successfully</p>
+      </div>
+
+      <!-- Ticket details -->
+      <div class="op-ticket-details">
+        <div class="op-ticket-header-row">
+          <div>
+            <div class="op-td-label">Ticket ID</div>
+            <div class="op-ticket-id">{{ t.ticketId }}</div>
+          </div>
+          <div class="op-td-right">
+            <div class="op-td-label">Slot Number</div>
+            <div class="op-slot-num">{{ t.slotNumber }}</div>
+          </div>
+        </div>
+
+        <hr class="op-divider">
+
+        <div class="op-ticket-info-grid">
+          <div>
+            <div class="op-td-label">Vehicle Number</div>
+            <div class="op-td-val">{{ t.vehicleNumber }}</div>
+          </div>
+          <div>
+            <div class="op-td-label">Vehicle Type</div>
+            <div class="op-td-val">{{ t.vehicleType | titlecase }}</div>
+          </div>
+          <div>
+            <div class="op-td-label">Entry Time</div>
+            <div class="op-td-val">{{ t.entryTime }}</div>
+          </div>
+          <div>
+            <div class="op-td-label">Entry Date</div>
+            <div class="op-td-val">{{ t.entryDate | date:'dd/MM/yyyy' }}</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- QR Code -->
+      <div class="op-qr-wrap">
+        <div class="op-qr" [innerHTML]="qrSvg()"></div>
+      </div>
+
+      <!-- Actions -->
+      <div class="op-ticket-actions">
+        <button class="op-ticket-btn op-ticket-btn--outline">Print Ticket</button>
+        <button class="op-ticket-btn op-ticket-btn--solid" (click)="processNext()">
+          Process Next Entry
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+</div>

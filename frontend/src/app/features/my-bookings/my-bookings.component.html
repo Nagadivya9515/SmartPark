@@ -1,0 +1,172 @@
+<nav class="mb-nav">
+  <div class="mb-nav__brand"><span class="mb-nav__logo">P</span><span>SmartPark</span></div>
+  <div class="mb-nav__tabs">
+    <button class="mb-nav__tab" (click)="goDashboard()">🏠 Dashboard</button>
+    <button class="mb-nav__tab mb-nav__tab--active">📅 My Bookings</button>
+  </div>
+  <div class="mb-nav__actions">
+    <button class="mb-icon-btn">👤</button>
+    <button class="mb-icon-btn">→</button>
+  </div>
+</nav>
+
+<div class="mb-page">
+
+  <div class="mb-page-header">
+    <h1 class="mb-page-title">My Bookings</h1>
+    <p class="mb-page-sub">Manage your parking reservations</p>
+  </div>
+
+  <!-- Loading -->
+  <div class="mb-loading" *ngIf="loading()">
+    <div class="mb-spinner"></div>
+  </div>
+
+  <ng-container *ngIf="!loading() && data() as d">
+
+    <!-- Summary stats -->
+    <div class="mb-stats">
+      <div class="mb-stat-card">
+        <div class="mb-stat-card__label">Active Bookings</div>
+        <div class="mb-stat-card__val mb-stat-card__val--green">{{ d.activeCount }}</div>
+        <div class="mb-stat-card__icon mb-stat-card__icon--green">✓</div>
+      </div>
+      <div class="mb-stat-card">
+        <div class="mb-stat-card__label">Total Bookings</div>
+        <div class="mb-stat-card__val mb-stat-card__val--indigo">{{ d.totalCount }}</div>
+        <div class="mb-stat-card__icon mb-stat-card__icon--indigo">📅</div>
+      </div>
+      <div class="mb-stat-card">
+        <div class="mb-stat-card__label">Total Spent</div>
+        <div class="mb-stat-card__val">${{ d.totalSpent.toFixed(2) }}</div>
+        <div class="mb-stat-card__icon mb-stat-card__icon--gray">💳</div>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="mb-tabs">
+      <button class="mb-tab" [class.mb-tab--active]="activeTab() === 'active'"
+              (click)="activeTab.set('active')">
+        Active ({{ d.activeCount }})
+      </button>
+      <button class="mb-tab" [class.mb-tab--active]="activeTab() === 'history'"
+              (click)="activeTab.set('history')">
+        History ({{ d.history.length }})
+      </button>
+    </div>
+
+    <!-- Active bookings -->
+    <ng-container *ngIf="activeTab() === 'active'">
+      <div class="mb-empty" *ngIf="d.active.length === 0">
+        No active bookings. <button class="mb-link" (click)="goDashboard()">Book a slot →</button>
+      </div>
+      <div class="mb-booking-card" *ngFor="let b of d.active">
+        <div class="mb-booking-card__header">
+          <div class="mb-booking-card__left">
+            <div class="mb-booking-card__lot-row">
+              <span class="mb-booking-card__lot">{{ b.lotName }}</span>
+              <span class="mb-badge mb-badge--active">✓ Active</span>
+            </div>
+            <div class="mb-booking-card__meta">
+              <span>📅 {{ formatDate(b.entryDate) }}</span>
+              <span>🕐 {{ b.entryTime }}</span>
+            </div>
+          </div>
+          <div class="mb-booking-card__right">
+            <div class="mb-booking-id-label">Booking ID</div>
+            <div class="mb-booking-id">{{ b.bookingRef }}</div>
+          </div>
+        </div>
+
+        <div class="mb-booking-card__info">
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Slot Number</div>
+            <div class="mb-info-val mb-info-val--slot">{{ b.slotNumber }}</div>
+          </div>
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Vehicle</div>
+            <div class="mb-info-val mb-info-val--bold">{{ b.vehicleNumber }}</div>
+          </div>
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Duration</div>
+            <div class="mb-info-val mb-info-val--bold">{{ b.durationHours }}h</div>
+          </div>
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Amount</div>
+            <div class="mb-info-val mb-info-val--green">${{ b.totalAmount.toFixed(2) }}</div>
+          </div>
+        </div>
+
+        <!-- QR panel -->
+        <div class="mb-qr-panel" *ngIf="showQrFor() === b.bookingRef">
+          <div class="mb-qr-inner" [innerHTML]="qrSvgMap[b.bookingRef]"></div>
+          <p class="mb-qr-note">Show at parking entry</p>
+        </div>
+
+        <div class="mb-booking-card__actions">
+          <button class="mb-action-btn mb-action-btn--qr"
+                  (click)="toggleQr(b.bookingRef, b.qrData)">
+            ⊞ {{ showQrFor() === b.bookingRef ? 'Hide QR' : 'Show QR' }}
+          </button>
+          <button class="mb-action-btn mb-action-btn--dir">📍 Directions</button>
+          <button class="mb-action-btn mb-action-btn--cancel"
+                  [disabled]="cancelling() === b.bookingRef"
+                  (click)="cancelBooking(b.bookingRef)">
+            {{ cancelling() === b.bookingRef ? 'Cancelling…' : 'Cancel' }}
+          </button>
+        </div>
+
+        <div class="mb-active-note">
+          <span>ℹ</span>
+          <span><strong>Active Booking:</strong> Your slot is reserved and ready for entry</span>
+        </div>
+      </div>
+    </ng-container>
+
+    <!-- History -->
+    <ng-container *ngIf="activeTab() === 'history'">
+      <div class="mb-empty" *ngIf="d.history.length === 0">No booking history yet.</div>
+      <div class="mb-booking-card mb-booking-card--history" *ngFor="let b of d.history">
+        <div class="mb-booking-card__header">
+          <div class="mb-booking-card__left">
+            <div class="mb-booking-card__lot-row">
+              <span class="mb-booking-card__lot">{{ b.lotName }}</span>
+              <span class="mb-badge"
+                    [class.mb-badge--cancelled]="b.status === 'CANCELLED'"
+                    [class.mb-badge--completed]="b.status === 'COMPLETED'">
+                {{ b.status | titlecase }}
+              </span>
+            </div>
+            <div class="mb-booking-card__meta">
+              <span>📅 {{ formatDate(b.entryDate) }}</span>
+              <span>🕐 {{ b.entryTime }}</span>
+            </div>
+          </div>
+          <div class="mb-booking-card__right">
+            <div class="mb-booking-id-label">Booking ID</div>
+            <div class="mb-booking-id">{{ b.bookingRef }}</div>
+          </div>
+        </div>
+        <div class="mb-booking-card__info">
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Slot Number</div>
+            <div class="mb-info-val mb-info-val--slot">{{ b.slotNumber }}</div>
+          </div>
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Vehicle</div>
+            <div class="mb-info-val mb-info-val--bold">{{ b.vehicleNumber }}</div>
+          </div>
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Duration</div>
+            <div class="mb-info-val mb-info-val--bold">{{ b.durationHours }}h</div>
+          </div>
+          <div class="mb-info-cell">
+            <div class="mb-info-label">Amount</div>
+            <div class="mb-info-val">${{ b.totalAmount.toFixed(2) }}</div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </ng-container>
+</div>

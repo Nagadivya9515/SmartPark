@@ -1,0 +1,317 @@
+<app-operator-navbar [active]="'exit'"></app-operator-navbar>
+
+<!-- ===== SEARCH VIEW ===== -->
+<div class="exit-page" *ngIf="view() === 'search'">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Exit Management</h1>
+      <p class="page-subtitle">Process vehicle exit and collect payment</p>
+    </div>
+    <div class="gate-badge">
+      <span class="gate-dot"></span>
+      {{ gateName }} - Active
+    </div>
+  </div>
+
+  <div class="search-layout">
+    <!-- Main Search Card -->
+    <div class="search-main">
+      <div class="card">
+        <h2 class="card-title">Search Vehicle Ticket</h2>
+        <p class="card-subtitle">Enter ticket ID or vehicle number to find the parking record</p>
+
+        <div class="search-input-group">
+          <div class="input-wrapper" [class.error]="searchError()">
+            <span class="input-icon">
+              <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                <circle cx="11" cy="11" r="8"/>
+                <path d="m21 21-4.35-4.35"/>
+              </svg>
+            </span>
+            <input
+              #searchInput
+              type="text"
+              class="search-input"
+              placeholder="Enter Ticket ID (e.g. ABC-123) or Vehicle Number"
+              [(ngModel)]="searchQuery"
+              (keyup.enter)="searchTicket()"
+              (input)="searchError.set('')"
+            />
+            <button class="search-clear" *ngIf="searchQuery" (click)="searchQuery = ''; searchError.set('')">✕</button>
+          </div>
+          <p class="error-msg" *ngIf="searchError()">{{ searchError() }}</p>
+        </div>
+
+        <button class="btn btn-primary btn-full" [class.loading]="isSearching()" (click)="searchTicket()">
+          <span *ngIf="!isSearching()">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+              <circle cx="11" cy="11" r="8"/>
+              <path d="m21 21-4.35-4.35"/>
+            </svg>
+            Search Ticket
+          </span>
+          <span *ngIf="isSearching()" class="spinner-text">
+            <span class="spinner"></span>
+            Searching...
+          </span>
+        </button>
+
+        <div class="search-hint">
+          <svg width="14" height="14" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <circle cx="12" cy="12" r="10"/><path d="M12 8v4m0 4h.01"/>
+          </svg>
+          You can search by Ticket ID, Vehicle Number, or scan the QR code
+        </div>
+      </div>
+
+      <!-- Alternative Methods -->
+      <div class="card methods-card">
+        <h3 class="methods-title">Alternative Search Methods</h3>
+        <div class="methods-grid">
+          <button class="method-btn" (click)="onQrScan()">
+            <div class="method-icon qr">
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/>
+                <rect x="3" y="14" width="7" height="7"/>
+                <path d="M14 14h.01M14 17h.01M17 14h.01M20 14h.01M17 17h3v3h-3zM20 17h.01"/>
+              </svg>
+            </div>
+            <div>
+              <div class="method-name">QR Code Scan</div>
+              <div class="method-desc">Scan parking ticket QR</div>
+            </div>
+          </button>
+
+          <button class="method-btn" (click)="onBarcodeScan()">
+            <div class="method-icon barcode">
+              <svg width="24" height="24" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.5">
+                <path d="M3 5v14M7 5v14M11 5v14M15 5v14M19 5v14M21 5v3M21 16v3"/>
+              </svg>
+            </div>
+            <div>
+              <div class="method-name">Barcode Scan</div>
+              <div class="method-desc">Use barcode reader</div>
+            </div>
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Today's Stats Sidebar -->
+    <div class="stats-sidebar">
+      <div class="card stats-card">
+        <h3 class="stats-title">Today's Stats</h3>
+        <div class="stat-item">
+          <span class="stat-label">Vehicles Exited</span>
+          <span class="stat-value primary">{{ todayStats().exited }}</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Revenue Collected</span>
+          <span class="stat-value green">${{ todayStats().revenue | number:'1.2-2' }}</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Avg Duration</span>
+          <span class="stat-value">{{ todayStats().avgDuration }}</span>
+        </div>
+        <div class="stat-divider"></div>
+        <div class="stat-item">
+          <span class="stat-label">Cash Payments</span>
+          <span class="stat-value">{{ todayStats().cashPayments }}</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-label">Card/UPI Payments</span>
+          <span class="stat-value">{{ todayStats().digitalPayments }}</span>
+        </div>
+      </div>
+
+      <div class="card recent-card">
+        <h3 class="stats-title">Recent Exits</h3>
+        <div class="recent-list">
+          <div class="recent-item" *ngFor="let exit of recentExits()">
+            <div class="recent-vehicle">
+              <span class="vehicle-icon">🚗</span>
+              <div>
+                <div class="recent-id">{{ exit.ticketId }}</div>
+                <div class="recent-plate">{{ exit.vehicleNo }}</div>
+              </div>
+            </div>
+            <div class="recent-meta">
+              <div class="recent-amount">${{ exit.amount | number:'1.2-2' }}</div>
+              <div class="recent-time">{{ exit.time }}</div>
+            </div>
+          </div>
+          <div class="no-recent" *ngIf="recentExits().length === 0">No exits processed yet today</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== SUMMARY VIEW ===== -->
+<div class="exit-page" *ngIf="view() === 'summary'">
+  <div class="page-header">
+    <div>
+      <h1 class="page-title">Exit Management</h1>
+      <p class="page-subtitle">Process vehicle exit and collect payment</p>
+    </div>
+    <div class="gate-badge">
+      <span class="gate-dot"></span>
+      {{ gateName }} - Active
+    </div>
+  </div>
+
+  <div class="summary-container">
+    <div class="card summary-card">
+      <h2 class="card-title">Exit Summary</h2>
+
+      <!-- Ticket Info Grid -->
+      <div class="info-grid">
+        <div class="info-cell">
+          <span class="info-label">Ticket ID</span>
+          <span class="info-value">{{ ticket()?.ticketId }}</span>
+        </div>
+        <div class="info-cell">
+          <span class="info-label">Slot Number</span>
+          <span class="info-value slot">{{ ticket()?.slotNumber }}</span>
+        </div>
+        <div class="info-divider"></div>
+        <div class="info-cell">
+          <span class="info-label">Vehicle Number</span>
+          <span class="info-value">{{ ticket()?.vehicleNumber }}</span>
+        </div>
+        <div class="info-cell">
+          <span class="info-label">Vehicle Type</span>
+          <span class="info-value">{{ ticket()?.vehicleType }}</span>
+        </div>
+      </div>
+
+      <!-- Time Boxes -->
+      <div class="time-boxes">
+        <div class="time-box entry">
+          <div class="time-box-label">Entry Time</div>
+          <div class="time-box-time">{{ ticket()?.entryTime | date:'HH:mm' }}</div>
+          <div class="time-box-date">{{ ticket()?.entryTime | date:'dd/MM/yyyy' }}</div>
+        </div>
+        <div class="time-box exit-time">
+          <div class="time-box-label">Exit Time</div>
+          <div class="time-box-time">{{ currentTime() | date:'HH:mm' }}</div>
+          <div class="time-box-date">{{ currentTime() | date:'dd/MM/yyyy' }}</div>
+        </div>
+        <div class="time-box duration">
+          <div class="time-box-label">Duration</div>
+          <div class="time-box-time duration-val">{{ durationDisplay() }}</div>
+        </div>
+      </div>
+
+      <!-- Payment Summary -->
+      <div class="payment-section">
+        <h3 class="section-title">Payment Summary</h3>
+        <div class="payment-line">
+          <span>Parking fee ({{ durationHours() }} {{ durationHours() === 1 ? 'hour' : 'hours' }} × ${{ ratePerHour }})</span>
+          <span>${{ parkingFee() | number:'1.2-2' }}</span>
+        </div>
+        <div class="payment-line">
+          <span>Service fee</span>
+          <span>${{ serviceFee | number:'1.2-2' }}</span>
+        </div>
+        <div class="payment-divider"></div>
+        <div class="payment-total">
+          <span>Total Amount</span>
+          <span class="total-amount">${{ totalAmount() | number:'1.2-2' }}</span>
+        </div>
+      </div>
+
+      <!-- Payment Method -->
+      <div class="payment-method-section">
+        <h3 class="section-title">Payment Status</h3>
+        <div class="payment-methods">
+          <button
+            class="method-pill"
+            [class.active]="selectedPayment() === 'CASH'"
+            (click)="selectedPayment.set('CASH')">
+            <span class="pill-icon">$</span>
+            Cash
+          </button>
+          <button
+            class="method-pill"
+            [class.active]="selectedPayment() === 'CARD'"
+            (click)="selectedPayment.set('CARD')">
+            <span class="pill-icon">💳</span>
+            Card
+          </button>
+          <button
+            class="method-pill"
+            [class.active]="selectedPayment() === 'UPI'"
+            (click)="selectedPayment.set('UPI')">
+            <span class="pill-icon">📱</span>
+            UPI/Wallet
+          </button>
+        </div>
+      </div>
+
+      <!-- Actions -->
+      <div class="action-row">
+        <button class="btn btn-outline" (click)="cancelSummary()">Cancel</button>
+        <button
+          class="btn btn-success btn-full"
+          [class.loading]="isProcessing()"
+          (click)="completeExit()"
+          [disabled]="isProcessing()">
+          <span *ngIf="!isProcessing()">
+            <svg width="18" height="18" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2.5">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"/>
+            </svg>
+            Complete Exit
+          </span>
+          <span *ngIf="isProcessing()" class="spinner-text">
+            <span class="spinner white"></span>
+            Processing...
+          </span>
+        </button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<!-- ===== DONE VIEW ===== -->
+<div class="exit-page done-page" *ngIf="view() === 'done'">
+  <div class="done-card">
+    <div class="done-icon-wrap">
+      <div class="done-icon">
+        <svg width="40" height="40" fill="none" viewBox="0 0 24 24" stroke="white" stroke-width="2.5">
+          <path stroke-linecap="round" stroke-linejoin="round" d="M5 13l4 4L19 7"/>
+        </svg>
+      </div>
+    </div>
+    <h2 class="done-title">Exit Completed!</h2>
+    <p class="done-subtitle">Vehicle has been successfully processed</p>
+
+    <div class="done-summary">
+      <div class="done-row">
+        <span>Ticket ID</span>
+        <strong>{{ ticket()?.ticketId }}</strong>
+      </div>
+      <div class="done-row">
+        <span>Vehicle</span>
+        <strong>{{ ticket()?.vehicleNumber }}</strong>
+      </div>
+      <div class="done-row">
+        <span>Amount Paid</span>
+        <strong class="green">${{ totalAmount() | number:'1.2-2' }}</strong>
+      </div>
+      <div class="done-row">
+        <span>Payment Mode</span>
+        <strong>{{ selectedPayment() }}</strong>
+      </div>
+    </div>
+
+    <div class="done-actions">
+      <button class="btn btn-outline" (click)="printReceipt()">🖨 Print Receipt</button>
+      <button class="btn btn-primary" (click)="startNew()">Process Next Vehicle</button>
+    </div>
+  </div>
+</div>
