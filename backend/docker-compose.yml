@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  # =====================================================================
+  # 1. PERSISTENT SQL DATABASE STORAGE (Source of Truth)
+  # =====================================================================
+  mysql-db:
+    image: mysql:8.0
+    container_name: smartpark-mysql
+    restart: always
+    ports:
+      - "5432:3306" # Binds external local port 5432 to standard internal container port 3306
+    environment:
+      MYSQL_ROOT_PASSWORD: root_system_password
+      MYSQL_DATABASE: parking_lot_management
+      MYSQL_USER: admin
+      MYSQL_PASSWORD: secret_password
+    volumes:
+      - mysql_data:/var/lib/mysql
+      # Mount initialization scripts folder to build schema structures and seed metrics tables on boot
+      - ./scripts/schema.sql:/docker-entrypoint-initdb.d/1_schema.sql:ro
+      - ./scripts/seed.sql:/docker-entrypoint-initdb.d/2_seed.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uadmin", "-psecret_password"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # =====================================================================
+  # 2. HIGH-SPEED DISTRIBUTED CACHE LAYER (Lock & Counter Handler)
+  # =====================================================================
+  redis-cache:
+    image: redis:7-alpine
+    container_name: smartpark-redis
+    restart: always
+    ports:
+      - "6379:6379" # Standard exposed Redis networking interface
+    command: redis-server --appendonly yes # Enables permanent write-ahead log files recovery logging
+    volumes:
+      - redis_data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+volumes:
+  mysql_data:
+  redis_data:
