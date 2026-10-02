@@ -1,0 +1,136 @@
+<nav class="bc-nav">
+  <div class="bc-nav__brand"><span class="bc-nav__logo">P</span><span>SmartPark</span></div>
+  <div class="bc-nav__tabs">
+    <button class="bc-nav__tab" (click)="goToBookings()">🏠 Dashboard</button>
+    <button class="bc-nav__tab" (click)="goToBookings()">📅 My Bookings</button>
+  </div>
+  <div class="bc-nav__actions">
+    <button class="bc-icon-btn">👤</button>
+    <button class="bc-icon-btn">→</button>
+  </div>
+</nav>
+
+<div class="bc-page" *ngIf="booking() as b">
+
+  <!-- Success header -->
+  <div class="bc-success-header">
+    <div class="bc-success-icon">✓</div>
+    <h1 class="bc-success-title">Booking Confirmed!</h1>
+    <p class="bc-success-sub">Your parking slot has been reserved successfully</p>
+  </div>
+
+  <!-- QR + booking ID card -->
+  <div class="bc-qr-card">
+    <div class="bc-qr-wrap">
+      <div class="bc-qr-img" [innerHTML]="qrSvg()"></div>
+      <p class="bc-qr-note">Show this QR code at entry</p>
+    </div>
+
+    <div class="bc-booking-info">
+      <div class="bc-booking-id-row">
+        <div>
+          <div class="bc-info-label">Booking ID</div>
+          <div class="bc-booking-id">{{ b.bookingRef }}</div>
+        </div>
+        <span class="bc-status-badge bc-status-badge--active">Active</span>
+      </div>
+
+      <div class="bc-info-grid">
+        <div class="bc-info-item">
+          <div class="bc-info-label">Slot Number</div>
+          <div class="bc-slot-num">{{ b.slotNumber }}</div>
+        </div>
+        <div class="bc-info-item">
+          <div class="bc-info-label">Vehicle</div>
+          <div class="bc-info-val">{{ b.vehicleNumber }}</div>
+        </div>
+      </div>
+
+      <div class="bc-action-btns">
+        <button class="bc-action-btn">⬇ Download</button>
+        <button class="bc-action-btn">⤴ Share</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Booking details -->
+  <div class="bc-details-card">
+    <h2 class="bc-card-title">Booking Details</h2>
+
+    <div class="bc-detail-row">
+      <div class="bc-detail-icon bc-detail-icon--purple">📍</div>
+      <div class="bc-detail-body">
+        <div class="bc-detail-main">{{ b.lotName }}</div>
+        <div class="bc-detail-sub">{{ b.lotAddress }}</div>
+      </div>
+      <button class="bc-directions-btn">↗ Directions</button>
+    </div>
+
+    <div class="bc-detail-grid">
+      <div class="bc-detail-cell">
+        <div class="bc-detail-icon bc-detail-icon--blue">📅</div>
+        <div>
+          <div class="bc-detail-label">Entry Date</div>
+          <div class="bc-detail-val">{{ formatDate(b.entryDate) }}</div>
+        </div>
+      </div>
+      <div class="bc-detail-cell">
+        <div class="bc-detail-icon bc-detail-icon--green">🕐</div>
+        <div>
+          <div class="bc-detail-label">Entry Time</div>
+          <div class="bc-detail-val">{{ b.entryTime }}</div>
+        </div>
+      </div>
+      <div class="bc-detail-cell">
+        <div class="bc-detail-icon bc-detail-icon--indigo">🚗</div>
+        <div>
+          <div class="bc-detail-label">Vehicle Type</div>
+          <div class="bc-detail-val">{{ b.vehicleType | titlecase }}</div>
+        </div>
+      </div>
+      <div class="bc-detail-cell">
+        <div class="bc-detail-icon bc-detail-icon--orange">⏱</div>
+        <div>
+          <div class="bc-detail-label">Duration</div>
+          <div class="bc-detail-val">{{ b.durationHours }} hours</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Payment summary -->
+  <div class="bc-payment-card">
+    <h2 class="bc-card-title">Payment Summary</h2>
+
+    <div class="bc-pay-row">
+      <span>Parking fee ({{ b.durationHours }} hours)</span>
+      <span>${{ (b.ratePerHour * b.durationHours).toFixed(2) }}</span>
+    </div>
+    <div class="bc-pay-row">
+      <span>Service fee</span>
+      <span>${{ b.serviceFee.toFixed(2) }}</span>
+    </div>
+
+    <hr class="bc-divider">
+
+    <div class="bc-pay-row bc-pay-total">
+      <span>Total Paid</span>
+      <span class="bc-total-val">${{ b.totalAmount.toFixed(2) }}</span>
+    </div>
+
+    <div class="bc-note">
+      <strong>Note:</strong> Additional charges may apply if you exceed the booked duration.
+    </div>
+  </div>
+
+  <!-- Footer actions -->
+  <div class="bc-footer-btns">
+    <button class="bc-footer-btn bc-footer-btn--outline" (click)="goToBookings()">
+      View All Bookings
+    </button>
+    <button class="bc-footer-btn bc-footer-btn--solid" (click)="bookAnother()">
+      Book Another Slot
+    </button>
+  </div>
+
+</div>

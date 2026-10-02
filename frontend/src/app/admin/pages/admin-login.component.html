@@ -1,0 +1,53 @@
+<div class="al-page">
+    <button class="al-back">← Back to Home</button>
+  
+    <div class="al-card">
+      <div class="al-logo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/>
+        </svg>
+      </div>
+      <h1 class="al-title">Admin Portal</h1>
+      <p class="al-sub">Sign in to access the admin dashboard</p>
+  
+      <div class="al-error" *ngIf="error()">{{ error() }}</div>
+  
+      <div class="al-field">
+        <label class="al-label">Admin Username</label>
+        <input class="al-input" type="email" [(ngModel)]="username"
+               placeholder="admin@smartpark.com" autocomplete="username">
+      </div>
+  
+      <div class="al-field">
+        <label class="al-label">Password</label>
+        <div class="al-pw-wrap">
+          <input class="al-input" [type]="showPw ? 'text' : 'password'"
+                 [(ngModel)]="password" placeholder="••••••••"
+                 autocomplete="current-password" (keyup.enter)="onSubmit()">
+          <button class="al-eye" type="button" (click)="showPw = !showPw">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+              <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+            </svg>
+          </button>
+        </div>
+      </div>
+  
+      <div class="al-row">
+        <label class="al-check">
+          <input type="checkbox" [(ngModel)]="rememberMe">
+          <span class="al-check__box"></span>
+          Remember me
+        </label>
+        <button class="al-forgot">Forgot password?</button>
+      </div>
+  
+      <button class="al-submit" [disabled]="loading()" (click)="onSubmit()">
+        <span class="al-spinner" *ngIf="loading()"></span>
+        {{ loading() ? 'Signing in…' : 'Sign In to Dashboard' }}
+      </button>
+  
+      <div class="al-warning">
+        ⚠ <strong>Restricted Access:</strong> This portal is for authorized administrators only.
+      </div>
+    </div>
+  </div>

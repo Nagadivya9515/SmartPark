@@ -1,0 +1,59 @@
+<ng-container *ngIf="!loading(); else loadingTpl">
+  <ng-container *ngIf="data() as d; else emptyTpl">
+    <div class="hdr">
+      <div>
+        <div class="title">Dashboard Overview</div>
+        <div class="sub">Real metrics from your database</div>
+      </div>
+    </div>
+
+    <div class="cards">
+      <div class="card">
+        <div class="label">Today's Revenue</div>
+        <div class="val">${{ d.todayRevenue | number:'1.0-2' }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Active Vehicles</div>
+        <div class="val">{{ d.activeVehicles }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Available Slots</div>
+        <div class="val">{{ d.availableSlots }}</div>
+      </div>
+      <div class="card">
+        <div class="label">Active Operators</div>
+        <div class="val">{{ d.activeOperators }}</div>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="panel">
+        <div class="p-title">Revenue Trend (Last 7 Days)</div>
+        <div class="list">
+          <div class="row" *ngFor="let p of d.revenueTrend7d">
+            <span class="k">{{ p.date }}</span>
+            <span class="v">${{ p.value | number:'1.0-2' }}</span>
+          </div>
+        </div>
+      </div>
+      <div class="panel">
+        <div class="p-title">Current Occupancy by Type</div>
+        <div class="list">
+          <div class="row" *ngFor="let kv of (d.occupancyByType | keyvalue)">
+            <span class="k">{{ kv.key }}</span>
+            <span class="v">{{ kv.value }}</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </ng-container>
+</ng-container>
+
+<ng-template #loadingTpl>
+  <div class="loading">Loading…</div>
+</ng-template>
+
+<ng-template #emptyTpl>
+  <div class="empty">No data yet (check DB + backend running).</div>
+</ng-template>
+

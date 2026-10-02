@@ -1,0 +1,59 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+
+.admin-shell {
+  font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+  display: grid;
+  grid-template-columns: 240px 1fr;
+  min-height: 100vh;
+  background: #f6f7fb;
+}
+
+.admin-sidebar {
+  background: #0b1220;
+  color: #e5e7eb;
+  display: flex;
+  flex-direction: column;
+  padding: 16px;
+}
+
+.admin-brand {
+  font-weight: 800;
+  font-size: 14px;
+  letter-spacing: 0.2px;
+  padding: 10px 10px 14px;
+}
+
+.admin-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  a {
+    color: #cbd5e1;
+    text-decoration: none;
+    padding: 10px 10px;
+    border-radius: 10px;
+    font-weight: 600;
+    font-size: 13px;
+    &:hover { background: rgba(255,255,255,0.06); color: #fff; }
+    &.active { background: rgba(255,255,255,0.10); color: #fff; }
+  }
+}
+
+.admin-bottom {
+  margin-top: auto;
+  a {
+    display: block;
+    padding: 10px 10px;
+    border-radius: 10px;
+    color: #cbd5e1;
+    text-decoration: none;
+    font-weight: 600;
+    font-size: 13px;
+    &:hover { background: rgba(255,255,255,0.06); color: #fff; }
+  }
+}
+
+.admin-content {
+  padding: 22px;
+}
+

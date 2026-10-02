@@ -1,0 +1,62 @@
+<div class="ol-page">
+
+  <button class="ol-back" (click)="goBack()">← Back to Home</button>
+
+  <div class="ol-card">
+
+    <div class="ol-logo">→</div>
+    <h1 class="ol-title">Operator Portal</h1>
+    <p class="ol-sub">Sign in to manage parking operations</p>
+
+    <div class="ol-error" *ngIf="error()">{{ error() }}</div>
+
+    <div class="ol-field">
+      <label class="ol-label">Operator ID</label>
+      <input class="ol-input" type="text"
+             [(ngModel)]="operatorId"
+             placeholder="OP001"
+             autocomplete="username">
+    </div>
+
+    <div class="ol-field">
+      <label class="ol-label">Password</label>
+      <div class="ol-pw-wrap">
+        <input class="ol-input"
+               [type]="showPw ? 'text' : 'password'"
+               [(ngModel)]="password"
+               placeholder="••••••••"
+               autocomplete="current-password"
+               (keyup.enter)="onSubmit()">
+        <button class="ol-eye" type="button" (click)="showPw = !showPw">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" *ngIf="!showPw">
+            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/>
+            <circle cx="12" cy="12" r="3"/>
+          </svg>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" *ngIf="showPw">
+            <path d="M17.94 17.94A10.07 10.07 0 0112 20c-7 0-11-8-11-8a18.45 18.45 0 015.06-5.94M9.9 4.24A9.12 9.12 0 0112 4c7 0 11 8 11 8a18.5 18.5 0 01-2.16 3.19m-6.72-1.07a3 3 0 11-4.24-4.24"/>
+            <line x1="1" y1="1" x2="23" y2="23"/>
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="ol-row">
+      <label class="ol-check">
+        <input type="checkbox" [(ngModel)]="rememberMe">
+        <span class="ol-check__box"></span>
+        Remember me
+      </label>
+      <button class="ol-forgot">Forgot password?</button>
+    </div>
+
+    <button class="ol-submit" [disabled]="loading()" (click)="onSubmit()">
+      <span class="ol-spinner" *ngIf="loading()"></span>
+      {{ loading() ? 'Signing in…' : 'Sign In' }}
+    </button>
+
+    <div class="ol-help">
+      <strong>Need help?</strong> Contact your parking lot manager for login credentials.
+    </div>
+
+  </div>
+</div>

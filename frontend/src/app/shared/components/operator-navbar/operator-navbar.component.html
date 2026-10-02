@@ -1,0 +1,21 @@
+<nav class="op-nav">
+  <div class="op-nav__brand" (click)="goEntry()" role="button" tabindex="0">
+    <span class="op-nav__logo">O</span>
+    <div class="op-nav__brand-text">
+      <span class="op-nav__title">Operator Panel</span>
+      <span class="op-nav__sub">City Center Parking</span>
+    </div>
+  </div>
+
+  <div class="op-nav__tabs">
+    <button class="op-tab" [class.op-tab--active]="active() === 'entry'" (click)="goEntry()">→ Entry</button>
+    <button class="op-tab" [class.op-tab--active]="active() === 'exit'" (click)="goExit()">↗ Exit</button>
+    <button class="op-tab" [class.op-tab--active]="active() === 'live'" (click)="goLive()">📊 Live Status</button>
+  </div>
+
+  <div class="op-nav__right">
+    <span class="op-online"><span class="op-online__dot"></span>Online</span>
+    <button class="op-logout" (click)="logout()">Logout</button>
+  </div>
+</nav>
+

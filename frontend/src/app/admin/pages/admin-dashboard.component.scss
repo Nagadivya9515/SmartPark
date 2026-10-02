@@ -1,0 +1,17 @@
+ .hdr { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 14px; }
+ .title { font-size: 20px; font-weight: 800; color: #0f172a; }
+ .sub { font-size: 13px; color: #64748b; margin-top: 4px; }
+ .cards { display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin: 16px 0; }
+ .card { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; }
+ .label { font-size: 12px; font-weight: 700; color: #64748b; }
+ .val { margin-top: 8px; font-size: 22px; font-weight: 900; color: #0f172a; }
+ .grid { display: grid; grid-template-columns: 1.4fr 1fr; gap: 12px; }
+ .panel { background: #fff; border: 1px solid #e2e8f0; border-radius: 14px; padding: 14px; }
+ .p-title { font-size: 13px; font-weight: 800; color: #0f172a; margin-bottom: 10px; }
+ .list { display: flex; flex-direction: column; gap: 8px; }
+ .row { display: flex; justify-content: space-between; font-size: 13px; }
+ .k { color: #475569; font-weight: 700; }
+ .v { color: #0f172a; font-weight: 800; }
+ .loading, .empty { padding: 20px; color: #475569; font-weight: 700; }
+ @media (max-width: 900px) { .cards { grid-template-columns: repeat(2, 1fr); } .grid { grid-template-columns: 1fr; } }
+

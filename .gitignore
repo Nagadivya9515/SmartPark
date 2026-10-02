@@ -1,0 +1,28 @@
+# Build outputs
+backend/target/
+frontend/dist/
+frontend/.angular/
+
+# Dependencies
+frontend/node_modules/
+
+# IDEs and editors
+.vscode/
+.idea/
+.classpath
+.project
+.settings/
+.apt_generated/
+.apt_generated_tests/
+*.swp
+*.swo
+.DS_Store
+
+# Environment / secrets — never commit real values.
+# backend/src/main/resources/application.properties.example is tracked and
+# holds placeholders only; the real file (if it ever contains a real value
+# instead of an env-var reference) stays local.
+.env
+.env.local
+.env.*.local
+backend/src/main/resources/application.properties

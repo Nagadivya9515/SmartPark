@@ -1,0 +1,83 @@
+<div class="auth-page">
+  <div class="auth-card">
+
+    <div class="auth-header">
+      <div class="auth-logo">🅿</div>
+      <h1>Create account</h1>
+      <p>Join the parking management platform</p>
+    </div>
+
+    <!-- Success -->
+    <div class="alert alert-success" *ngIf="successMsg">
+      <span>✔</span> {{ successMsg }}
+    </div>
+
+    <!-- Error -->
+    <div class="alert alert-error" *ngIf="authService.error()">
+      <span>⚠</span> {{ authService.error() }}
+    </div>
+
+    <form [formGroup]="form" (ngSubmit)="onSubmit()" novalidate *ngIf="!successMsg">
+
+      <!-- Username -->
+      <div class="form-group" [class.has-error]="username.invalid && username.touched">
+        <label for="username">Username</label>
+        <input id="username" type="text" formControlName="username" placeholder="Choose a username" />
+        <span class="field-error" *ngIf="username.touched && username.errors?.['required']">Username is required</span>
+        <span class="field-error" *ngIf="username.touched && username.errors?.['minlength']">At least 3 characters</span>
+      </div>
+
+      <!-- Email -->
+      <div class="form-group" [class.has-error]="email.invalid && email.touched">
+        <label for="email">Email</label>
+        <input id="email" type="email" formControlName="email" placeholder="your@email.com" />
+        <span class="field-error" *ngIf="email.touched && email.errors?.['required']">Email is required</span>
+        <span class="field-error" *ngIf="email.touched && email.errors?.['email']">Enter a valid email</span>
+      </div>
+
+      <!-- Password -->
+      <div class="form-group" [class.has-error]="password.invalid && password.touched">
+        <label for="password">Password</label>
+        <div class="input-with-action">
+          <input
+            id="password"
+            [type]="showPassword ? 'text' : 'password'"
+            formControlName="password"
+            placeholder="At least 8 characters"
+          />
+          <button type="button" class="toggle-pw" (click)="showPassword = !showPassword">
+            {{ showPassword ? '🙈' : '👁' }}
+          </button>
+        </div>
+        <span class="field-error" *ngIf="password.touched && password.errors?.['required']">Password is required</span>
+        <span class="field-error" *ngIf="password.touched && password.errors?.['minlength']">At least 8 characters</span>
+      </div>
+
+      <!-- Confirm Password -->
+      <div class="form-group"
+           [class.has-error]="(confirmPassword.touched && confirmPassword.errors?.['required'])
+                              || (form.errors?.['passwordMismatch'] && confirmPassword.touched)">
+        <label for="confirmPassword">Confirm password</label>
+        <input
+          id="confirmPassword"
+          type="password"
+          formControlName="confirmPassword"
+          placeholder="Repeat your password"
+        />
+        <span class="field-error" *ngIf="confirmPassword.touched && confirmPassword.errors?.['required']">Please confirm your password</span>
+        <span class="field-error" *ngIf="form.errors?.['passwordMismatch'] && confirmPassword.touched">Passwords do not match</span>
+      </div>
+
+      <button type="submit" class="btn btn-primary" [disabled]="authService.isLoading()">
+        <span class="spinner" *ngIf="authService.isLoading()"></span>
+        {{ authService.isLoading() ? 'Creating account…' : 'Create account' }}
+      </button>
+
+    </form>
+
+    <div class="auth-footer">
+      Already have an account? <a routerLink="/login">Sign in</a>
+    </div>
+
+  </div>
+</div>

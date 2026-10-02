@@ -1,0 +1,118 @@
+<nav class="bs-nav">
+  <div class="bs-nav__brand"><span class="bs-nav__logo">P</span><span>SmartPark</span></div>
+  <div class="bs-nav__tabs">
+    <button class="bs-nav__tab" routerLink="/dashboard">🏠 Dashboard</button>
+    <button class="bs-nav__tab" routerLink="/bookings">📅 My Bookings</button>
+  </div>
+</nav>
+
+<div class="bs-page">
+  <button class="bs-back" (click)="goBack()">← Back to Dashboard</button>
+
+  <div class="bs-slot-banner" *ngIf="slot() as s">
+    <div class="bs-slot-banner__info">
+      <div class="bs-slot-banner__title">Selected Parking Slot</div>
+      <div class="bs-slot-banner__meta">
+        <span>Slot: {{ formattedSlotNumber() }}</span>
+        <span class="dot">•</span>
+        <span>Floor: {{ s.floorName }}</span>
+        <span class="dot">•</span>
+        <span>Section: {{ s.sectionName }}</span>
+        <span class="dot">•</span>
+        <span>Type: {{ s.vehicleType | titlecase }}</span>
+      </div>
+    </div>
+    <div class="bs-slot-banner__badge">{{ s.sectionName }}</div>
+  </div>
+
+  <div class="bs-layout">
+    <div class="bs-form-card">
+      <h2 class="bs-form-card__title">Book Your Parking Slot</h2>
+      <p class="bs-form-card__sub">{{ slot()?.lotName ?? 'Loading…' }}</p>
+
+      <div class="bs-alert" *ngIf="error()">⚠ {{ error() }}</div>
+
+      <div class="bs-field-group">
+        <label class="bs-label">Select Your Vehicle</label>
+        <div class="bs-select-wrap">
+          <select class="bs-select"
+                  [ngModel]="selectedVehicleId()"
+                  (ngModelChange)="selectedVehicleId.set($event)">
+            <option [ngValue]="null" disabled>— Choose a vehicle —</option>
+            <option *ngFor="let v of filteredVehicles()" [ngValue]="v.id">
+              {{ v.vehicleNumber }} ({{ v.vehicleLabel }})
+            </option>
+          </select>
+          <span class="bs-select-arrow">▾</span>
+        </div>
+        <p *ngIf="filteredVehicles().length === 0" class="bs-alert-info">
+          No {{ (slot()?.vehicleType ?? '') | lowercase }}s registered to your account yet.
+        </p>
+      </div>
+
+      <div class="bs-field-group">
+        <label class="bs-label">Parking Duration</label>
+        <div class="bs-select-wrap">
+          <select class="bs-select"
+                  [ngModel]="durationHours()"
+                  (ngModelChange)="durationHours.set(+$event)">
+            <option *ngFor="let d of durationOptions" [ngValue]="d">
+              {{ d }} {{ d === 1 ? 'hour' : 'hours' }}
+            </option>
+          </select>
+          <span class="bs-select-arrow">▾</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="bs-summary-card">
+      <h3 class="bs-summary-card__title">Booking Summary</h3>
+
+      <div class="bs-summary-row bs-summary-row--block">
+        <span class="bs-summary-label">Parking Location</span>
+        <span class="bs-summary-value bs-summary-value--bold">{{ slot()?.lotName ?? '—' }}</span>
+      </div>
+      <hr class="bs-divider">
+
+      <div class="bs-summary-row bs-summary-row--block">
+        <span class="bs-summary-label">Selected Slot</span>
+        <span class="bs-summary-value bs-summary-value--slot">{{ formattedSlotNumber() }}</span>
+        <span class="bs-summary-sub">{{ slot()?.floorName }} • Section {{ slot()?.sectionName }}</span>
+      </div>
+      <hr class="bs-divider">
+
+      <div class="bs-summary-row">
+        <span class="bs-summary-label">Vehicle</span>
+        <strong>{{ selectedVehicle()?.vehicleNumber ?? '—' }}</strong>
+      </div>
+      <div class="bs-summary-row">
+        <span class="bs-summary-label">Price per hour</span>
+        <span>${{ slot()?.ratePerHour ?? 0 }}</span>
+      </div>
+      <div class="bs-summary-row">
+        <span class="bs-summary-label">Duration</span>
+        <span>{{ durationHours() }} {{ durationHours() === 1 ? 'hour' : 'hours' }}</span>
+      </div>
+      <div class="bs-summary-row">
+        <span class="bs-summary-label">Service fee</span>
+        <span>$1.50</span>
+      </div>
+
+      <hr class="bs-divider">
+
+      <div class="bs-summary-row bs-summary-total">
+        <span>Total Amount</span>
+        <span class="bs-total-val">${{ totalAmount().toFixed(2) }}</span>
+      </div>
+
+      <button class="bs-confirm-btn"
+              [disabled]="loading() || !selectedVehicleId()"
+              (click)="confirmBooking()">
+        <span class="bs-spinner" *ngIf="loading()"></span>
+        {{ loading() ? 'Booking…' : 'Confirm Booking' }}
+      </button>
+
+      <p class="bs-cancel-note">You can cancel from "My Bookings" any time before entry.</p>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,39 @@
+# ── Server ────────────────────────────────────────────────────────────────
+server.port=8080
+
+# ── MySQL ─────────────────────────────────────────────────────────────────
+# No real credentials live here. Set DB_USERNAME/DB_PASSWORD in your own
+# environment (shell export, IDE run config, or an untracked .env this repo
+# does not read directly but you may load into the shell before starting).
+spring.datasource.url=jdbc:mysql://localhost:3306/parking_system_db?createDatabaseIfNotExist=true&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=UTC
+spring.datasource.username=${DB_USERNAME:CHANGE_ME}
+spring.datasource.password=${DB_PASSWORD:CHANGE_ME}
+spring.datasource.driver-class-name=com.mysql.cj.jdbc.Driver
+
+# ── JPA / Hibernate ───────────────────────────────────────────────────────
+# ddl-auto=update is fine for local dev; swap for Flyway/Liquibase migrations
+# before this ever runs against a shared or production database.
+spring.jpa.hibernate.ddl-auto=update
+spring.jpa.show-sql=true
+spring.jpa.properties.hibernate.dialect=org.hibernate.dialect.MySQLDialect
+spring.jpa.properties.hibernate.format_sql=true
+
+# ── JWT ───────────────────────────────────────────────────────────────────
+# No real secret lives here. Must be at least 256-bit (32 chars) once you set
+# a real value in JWT_SECRET — generate one with e.g. `openssl rand -base64 48`.
+jwt.secret=${JWT_SECRET:CHANGE_ME_REPLACE_WITH_A_RANDOM_32_PLUS_CHAR_SECRET}
+# 15 minutes in milliseconds
+jwt.access-token-expiry-ms=900000
+# 7 days
+jwt.refresh-token-expiry-days=7
+# 8 hours — operator and admin tokens
+jwt.operator-expiry-ms=28800000
+jwt.admin-expiry-ms=28800000
+
+# ── Cookie ────────────────────────────────────────────────────────────────
+# Set to true in production (HTTPS only)
+cookie.secure=${COOKIE_SECURE:false}
+cookie.same-site=Lax
+
+# ── CORS (Angular dev server) ─────────────────────────────────────────────
+cors.allowed-origins=${CORS_ALLOWED_ORIGINS:http://localhost:4200}
