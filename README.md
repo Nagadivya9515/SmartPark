@@ -7,6 +7,46 @@ A high-throughput, low-latency backend microservice designed to handle real-time
 * **Framework-Free Native Go Engine:** Built entirely using Go’s native standard library (`net/http`) and the enhanced `ServeMux` router for clean execution speeds, low memory overhead, and minimal binary deployment sizes.
 * **Race-Condition & Thread Mitigation:** Designed a thread-safe allocation pipeline combining distributed `Redis SetNX` mutex locking with database-level row locks (`PESSIMISTIC_WRITE`) to completely eliminate dual-slot assignments under heavy peak loads.
 * **ACID-Compliant CRUD Pipeline:** Implemented long-lived database connection pools with managed transaction scopes to guarantee absolute rollback safety, error tracking, and strict financial auditability.
+ NETWORK REQUEST: POST /api/sessions/reserve
+       │
+       ▼
+ ┌───────────┐
+ │  Port 8080│ ──► [ internal/web/middleware.go ]
+ └───────────┘     Logs method, URL path, performance latency, and HTTP status codes.
+       │
+       ▼
+ ┌─────────────────────────────┐
+ │ [ internal/web/router.go ]  │
+ │ Native http.ServeMux Router │ ──► Routes request matching path string pattern.
+ └─────────────┬───────────────┘
+               │
+               ▼
+ ┌─────────────────────────────┐
+ │ [ internal/web/handlers.go ]│
+ │ HandleReserveSlot Controller│ ──► Extracts incoming JSON payload bytes matching
+ └─────────────┬───────────────┘     the blueprints in [ internal/models/models.go ].
+               │
+               ├──────────────────────────┐
+               │ (1st: Mutual Exclusion)  │ (2nd: ACID Write transaction)
+               ▼                          ▼
+ ┌────────────────────────────┐    ┌───────────────────────────────────┐
+ │ [ internal/cache/redis.go ]│    │ [ internal/database/repository.go ]
+ │ Distributed Lock Engine    │    │ SQL Append-Only Data Ledger       │
+ ├────────────────────────────┤    ├───────────────────────────────────┤
+ │ • SetNX Mutex (2s Window)  │    │ • Tx.Begin (ReadCommitted Isolation)
+ │ • Atomic Decr counter      │    │ • SELECT ... FOR UPDATE (Row Lock)
+ │ • Lua Script safe release  │    │ • UPDATE slot state to 'occupied' │
+ └─────────────┬──────────────┘    │ • INSERT new active session block │
+               │                       • Tx.Commit persistence write   │
+               │                   └─────────────────┬─────────────────┘
+               │                                     │
+               └──────────────────┬──────────────────┘
+                                  │
+                                  ▼
+ ┌─────────────────────────────────────────────────────────────────────────────┐
+ │ STREAMS NETWORK RESPONSE BACK OUT TO ACTIVE CONNECTION                      │
+ │ Output payload standard tracking signature: 201 Created + Session JSON      │
+ └─────────────────────────────────────────────────────────────────────────────┘
 
 ## 🛠️ Technical Stack
 
