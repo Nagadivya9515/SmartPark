@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 # SmartPark: Concurrent Parking Management System
 
 A high-throughput, low-latency backend microservice designed to handle real-time vehicle parking slot allocations natively in Go. This system focuses on distributed systems principles, absolute thread safety, and framework-free performance.
@@ -72,7 +71,7 @@ To verify the system's thread-safety boundaries, you can invoke Go's built-in be
 ```bash
 go test -v -race ./...
 ```
-=======
+
 # Parking System
 
 A parking-lot management platform: registration/login, a live occupancy dashboard,
@@ -218,4 +217,4 @@ Demo accounts seeded on first backend run: operators `OP001`/`12345678` (entry),
 `OP002`/`operator123` (exit), `OP003`/`supervisor1` (supervisor); admins
 `admin@smartpark.com`/`Admin@1234` (super admin) and `manager@smartpark.com`/
 `Manager@1234` (admin) — both now work identically against every admin endpoint.
->>>>>>> origin/SmartPark-Concurrent-Parking-System
+
